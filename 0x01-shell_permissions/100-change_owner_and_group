@@ -1,0 +1,3 @@
+#!/bi/bash
+chown vincent:staff *
+
