@@ -1,2 +1,0 @@
-#!/bin/bsah
-tr "A" "Z" | tr "c" "c"
