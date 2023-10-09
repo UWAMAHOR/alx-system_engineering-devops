@@ -1,34 +1,28 @@
 #!/usr/bin/env bash
-# Usage: ./1-world_wide_web <domain> <subdomain>
-# Display information about subdomains.
+# scripts that displays information about subdomains
 
-# domain_information () {
-#     line=$(dig "$2"."$1" | grep -A1 'ANSWER SECTION:' | tr '\t' '\n' | tail -2 | tr '\n' ' ')
-#     echo "$2 $line" | awk '{print "The subdomain " $1 " is a " $2 " record and points to " $3}'
-# }
-
-# if [ "$#" == 1 ]
-# then
-#   domain_information "$1" "www"
-#   domain_information "$1" "lb-01"
-#   domain_information "$1" "web-01"
-#   domain_information "$1" "web-02"
-# elif [ "$#" == 2 ]
-# then
-#   domain_information "$1" "$2"
-# fi
-
- func () {
-    if [ -n "$2" ]
-    then
-	dig "$2.$1" | grep -A1 'ANSWER SECTION:' | paste - - | awk -v sd="$2" '{print "The subdomain " sd " is a " $7 " record and points to " $8}'
+domain_info() {
+    local domain="$1"
+    local subdomain="$2"
+    local line
+    line=$(dig +short "$subdomain.$domain")
+    if [ -z "$line" ]; then
+        echo "The subdomain $subdomain does not have an associated IP address."
     else
-	dig "www.$1" | grep -A1 'ANSWER SECTION:' | paste - - | awk '{print "The subdomain www is a " $7 " record and points to " $8}'
-	dig "lb-01.$1" | grep -A1 'ANSWER SECTION:' | paste - - | awk '{print "The subdomain lb-01 is a " $7 " record and points to " $8}'
-	dig "web-01.$1" | grep -A1 'ANSWER SECTION:' | paste - - | awk '{print "The subdomain web-01 is a " $7 " record and points to " $8}'
-	dig "web-02.$1" | grep -A1 'ANSWER SECTION:' | paste - - | awk '{print "The subdomain web-02 is a " $7 " record and points to " $8}'
+        echo "The subdomain $subdomain is a A record and points to $line"
     fi
 }
 
-func "$1" "$2"
-
+if [ "$#" -eq 1 ]; then
+    domain="$1"
+    domain_info "$domain" "www"
+    domain_info "$domain" "lb-01"
+    domain_info "$domain" "web-01"
+    domain_info "$domain" "web-02"
+elif [ "$#" -eq 2 ]; then
+    domain="$1"
+    subdomain="$2"
+    domain_info "$domain" "$subdomain"
+else
+    echo "Usage: $0 <domain> [subdomain]"
+fi
